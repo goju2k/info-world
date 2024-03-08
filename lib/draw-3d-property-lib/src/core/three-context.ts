@@ -1,4 +1,4 @@
-import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import { BoxGeometry, BufferGeometry, ColorRepresentation, DoubleSide, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, SRGBColorSpace, Scene, TextureLoader, Vector3, WebGLRenderer } from 'three';
 
 import { CameraControlFps } from './camera/camera-control-fps';
 
@@ -25,7 +25,7 @@ export class ThreeContext {
     
     // camera
     this.camera = new PerspectiveCamera(fov, width / height, near, far);
-    this.camera.position.set(0, 1.5, 0);
+    this.camera.position.set(0, 1.5, 5);
 
     // renderer
     this.renderer = new WebGLRenderer();
@@ -36,14 +36,59 @@ export class ThreeContext {
     this.cameraControl.attach();
 
   }
+
+  addBaseAxis(size:number = 100) {
+    this.addLine([ new Vector3(0, 0, 0), new Vector3(size, 0, 0) ], 'red');
+    this.addLine([ new Vector3(0, 0, 0), new Vector3(0, size, 0) ], 'green');
+    this.addLine([ new Vector3(0, 0, 0), new Vector3(0, 0, size) ], 'blue');
+  }
+
+  addLine(path:Vector3[], color:ColorRepresentation = 'gray') {
+    const lineGeometry = new BufferGeometry().setFromPoints(path);
+    const lineMaterial = new LineBasicMaterial({ color });
+    const line = new Line(lineGeometry, lineMaterial);
+    this.scene.add(line);
+  }
+
+  addPlainImage(url:string, size:number) {
+    const textureLoader = new TextureLoader();
+    textureLoader.load(url, (texture) => {
+      texture.colorSpace = SRGBColorSpace;
+      const geometry = new PlaneGeometry(size, size * (texture.image.height / texture.image.width));
+      const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
+      const plain = new Mesh(geometry, material);
+      this.scene.add(plain);
+    });
+  }
+
+  addPlain(width:number = 1, height:number = 1) {
+    const geometry = new PlaneGeometry(width, height);
+    const material = new MeshBasicMaterial({ color: 'lightgray', side: DoubleSide });
+    const plain = new Mesh(geometry, material);
+    this.scene.add(plain);
+  }
   
-  addCube() {
-    const geometry = new BoxGeometry(1, 1, 1);
+  addCube(width:number = 1, height:number = 1, depth:number = 1) {
+
+    // Create a cube
+    const geometry = new BoxGeometry(width, height, depth);
     const material = new MeshBasicMaterial({ color: 'red' });
     const cube = new Mesh(geometry, material);
-    this.scene.add(cube);
+    
+    // Create a line
+    const lineGeometry = new BufferGeometry().setFromPoints([
+      new Vector3(-0.5, -0.5, -0.5),
+      new Vector3(-0.5, 0.5, -0.5),
+      new Vector3(0.5, 0.5, -0.5),
+      new Vector3(0.5, -0.5, -0.5),
+      new Vector3(-0.5, -0.5, -0.5),
+      // new Vector3(1, 0, 0),
+    ]);
+    const lineMaterial = new LineBasicMaterial({ color: 'white', linewidth: 2 });
+    const line = new Line(lineGeometry, lineMaterial);
 
-    this.camera.position.z = 5;
+    this.scene.add(cube);
+    this.scene.add(line);
 
     return cube;
   }
