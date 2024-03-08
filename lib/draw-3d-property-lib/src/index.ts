@@ -1,0 +1,1 @@
+export * from './component/Canvas3d';

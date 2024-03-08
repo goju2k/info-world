@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.14.5",
+    "@babel/preset-react": "^7.14.5",
     "@nx/eslint": "18.0.7",
     "@nx/eslint-plugin": "18.0.7",
     "@nx/js": "18.0.7",
@@ -24,6 +26,7 @@
     "@types/react-dom": "18.2.14",
     "@types/react-is": "18.2.2",
     "@types/styled-components": "5.1.26",
+    "@types/three": "^0.162.0",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "@vitejs/plugin-react": "^4.2.0",
@@ -52,6 +55,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-is": "18.2.0",
-    "styled-components": "5.3.6"
+    "styled-components": "5.3.6",
+    "three": "^0.162.0",
+    "tslib": "^2.3.0"
   }
 }
