@@ -1,0 +1,8 @@
+{
+  "name": "info-world-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "app/info-world-app/src",
+  "projectType": "application",
+  "targets": {},
+  "tags": []
+}
