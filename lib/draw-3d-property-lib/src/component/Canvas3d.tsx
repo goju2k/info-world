@@ -18,7 +18,7 @@ export function Canvas3d<T>({ parentElement, renderer, payload }:Canvas3dProps<T
   const { offsetWidth, offsetHeight } = parentElement;
 
   // three context
-  const threeContextRef = useRef<ThreeContext>(new ThreeContext({ fov: 75, width: offsetWidth, height: offsetHeight }));
+  const threeContextRef = useRef<ThreeContext>(new ThreeContext({ fov: 120, width: offsetWidth, height: offsetHeight }));
 
   // dom append
   const prevParentElementRef = useRef<HTMLElement>();

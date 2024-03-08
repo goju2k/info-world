@@ -16,6 +16,7 @@ export class CameraControlFps {
   moveBackward = false;
   moveLeft = false;
   moveRight = false;
+  moveTop = false;
 
   delta = 0.05;
   moveSpeed = 1;
@@ -84,21 +85,30 @@ export class CameraControlFps {
       this.controls.getDirection(direction);
       
       if (this.moveForward) {
-        this.controls.getObject().position.add(direction.multiplyScalar(this.delta * this.moveSpeed));
-        this.controls.getDirection(direction);
+        // this.controls.getObject().position.add(direction.multiplyScalar(this.delta * this.moveSpeed));
+        // this.controls.getDirection(direction);
+        this.controls.moveForward(this.delta * this.moveSpeed);
       }
       if (this.moveBackward) {
-        this.controls.getObject().position.sub(direction.multiplyScalar(this.delta * this.moveSpeed));
-        this.controls.getDirection(direction);
+        // this.controls.getObject().position.sub(direction.multiplyScalar(this.delta * this.moveSpeed));
+        // this.controls.getDirection(direction);
+        this.controls.moveForward(this.delta * this.moveSpeed * -1);
       }
       
       if (this.moveLeft) {
-        this.controls.getObject().position.add(direction.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 2).multiplyScalar(this.delta * this.moveSpeed));
-        this.controls.getDirection(direction);
+        // this.controls.getObject().position.add(direction.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 2).multiplyScalar(this.delta * this.moveSpeed));
+        // this.controls.getDirection(direction);
+        this.controls.moveRight(this.delta * this.moveSpeed * -1);
       }
       
       if (this.moveRight) {
-        this.controls.getObject().position.sub(direction.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 2).multiplyScalar(this.delta * this.moveSpeed));
+        // this.controls.getObject().position.sub(direction.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 2).multiplyScalar(this.delta * this.moveSpeed));
+        // this.controls.getDirection(direction);
+        this.controls.moveRight(this.delta * this.moveSpeed);
+      }
+
+      if (this.moveTop) {
+        this.camera.position.y += this.delta * this.moveSpeed;
       }
       
     }
@@ -106,7 +116,7 @@ export class CameraControlFps {
   }
 
   private updateRenderFlag() {
-    this.renderFlag = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight;
+    this.renderFlag = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight || this.moveTop;
   }
 
   private keydown(event:KeyboardEvent) {
@@ -122,6 +132,9 @@ export class CameraControlFps {
         break;
       case 68: // D
         this.moveRight = true;
+        break;
+      case 32: // space
+        this.moveTop = true;
         break;
       default:
         break;
@@ -143,6 +156,9 @@ export class CameraControlFps {
         break;
       case 68: // D
         this.moveRight = false;
+        break;
+      case 32: // space
+        this.moveTop = false;
         break;
       default:
         break;
