@@ -1,6 +1,6 @@
 import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 
-import { CameraControl } from './camera/camera-control';
+import { CameraControlFps } from './camera/camera-control-fps';
 
 interface ThreeContextConfig {
   width:number;
@@ -16,7 +16,7 @@ export class ThreeContext {
   camera:PerspectiveCamera;
   renderer:WebGLRenderer;
 
-  cameraControl:CameraControl;
+  cameraControl:CameraControlFps;
 
   constructor({ fov, width, height, near, far }:ThreeContextConfig) {
 
@@ -32,7 +32,7 @@ export class ThreeContext {
     this.renderer.setSize(width, height);
 
     // camera control
-    this.cameraControl = new CameraControl(this);
+    this.cameraControl = new CameraControlFps(this);
     this.cameraControl.attach();
 
   }

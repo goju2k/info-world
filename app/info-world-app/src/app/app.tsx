@@ -24,7 +24,13 @@ export function App() {
     cube.rotation.y += 0.5;
     
     context.render();
+    // function animate() {
+    //   requestAnimationFrame(animate);
+    //   context.render();
+    // }
     
+    // animate();
+
   };
 
   return (
