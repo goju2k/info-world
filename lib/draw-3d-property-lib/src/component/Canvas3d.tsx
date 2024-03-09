@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ThreeContext } from '../core/three-context';
 
@@ -17,27 +17,53 @@ export function Canvas3d<T>({ parentElement, renderer, payload }:Canvas3dProps<T
 
   const { offsetWidth, offsetHeight } = parentElement;
 
+  console.log('render canvas 3d');
+  
   // three context
-  const threeContextRef = useRef<ThreeContext>(new ThreeContext({ fov: 120, width: offsetWidth, height: offsetHeight }));
+  const [ threeContext, setThreeContext ] = useState<ThreeContext>();
+  const threeContextRef = useRef(threeContext);
+
+  useEffect(() => {
+
+    const newContext = new ThreeContext({ width: offsetWidth, height: offsetHeight });
+    setThreeContext(newContext);
+    threeContextRef.current = newContext;
+
+    return () => {
+      if (threeContextRef.current) {
+        const { domElement } = threeContextRef.current.renderer;
+        parentElement.childNodes.forEach((node) => node === domElement && parentElement.removeChild(domElement));
+        threeContextRef.current.renderer.dispose();
+        console.log('disposed');
+      }
+    };
+  }, []);
 
   // dom append
   const prevParentElementRef = useRef<HTMLElement>();
   useEffect(() => {
 
-    const { domElement } = threeContextRef.current.renderer;
+    console.log('parentElement effect');
+    
+    if (threeContextRef.current) {
+      
+      const { domElement } = threeContextRef.current.renderer;
+  
+      if (domElement && prevParentElementRef.current) {
+        console.log('remove prev canvas');
+        parentElement.childNodes.forEach((node) => node === domElement && parentElement.removeChild(domElement));
+      }
+      
+      parentElement.appendChild(domElement);
 
-    if (domElement && prevParentElementRef.current) {
-      prevParentElementRef.current.removeChild(domElement);
     }
 
     prevParentElementRef.current = parentElement;
 
-    parentElement.appendChild(domElement);
-
   }, [ parentElement ]);
 
   // render
-  renderer({ context: threeContextRef.current, payload });
+  threeContext && renderer({ context: threeContext, payload });
 
   return (
     <></>

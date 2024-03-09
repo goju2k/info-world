@@ -18,8 +18,8 @@ export class CameraControlFps {
   moveRight = false;
   moveTop = false;
 
-  delta = 0.05;
-  moveSpeed = 1;
+  delta = 0.5;
+  moveSpeed = 5;
 
   renderFlag = false;
   
@@ -94,7 +94,7 @@ export class CameraControlFps {
         // this.controls.getDirection(direction);
         this.controls.moveForward(this.delta * this.moveSpeed * -1);
       }
-      
+            
       if (this.moveLeft) {
         // this.controls.getObject().position.add(direction.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 2).multiplyScalar(this.delta * this.moveSpeed));
         // this.controls.getDirection(direction);
