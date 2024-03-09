@@ -1,4 +1,4 @@
-import { BoxGeometry, BufferGeometry, ColorRepresentation, DoubleSide, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, SRGBColorSpace, Scene, TextureLoader, Vector3, WebGLRenderer } from 'three';
+import { BoxGeometry, BufferGeometry, ColorRepresentation, DoubleSide, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, PlaneGeometry, SRGBColorSpace, Scene, Shape, ShapeGeometry, TextureLoader, Vector3, WebGLRenderer } from 'three';
 
 import { CameraControlFps } from './camera/camera-control-fps';
 
@@ -18,7 +18,18 @@ export class ThreeContext {
 
   cameraControl:CameraControlFps;
 
+  halfWidth:number;
+  halfHeight:number;
+
+  objectList:Object3D[] = [];
+
+  initVerticalFOV:number;
+  initCameraDistance:number;
+
   constructor({ fov, width, height, near, far }:ThreeContextConfig) {
+
+    this.halfWidth = width / 2;
+    this.halfHeight = height / 2;
 
     // scene
     this.scene = new Scene();
@@ -26,13 +37,11 @@ export class ThreeContext {
     // camera
     const aspectRatio = width / height;
     const focalLength = 100;
-    const verticalFOV = Math.atan(height / (2 * aspectRatio * focalLength)) * 2 * (180 / Math.PI);
-    console.log('aspectRatio', aspectRatio, 'verticalFOV', verticalFOV);
-    this.camera = new PerspectiveCamera(fov = verticalFOV, width / height, near, far);
-    const cameraDistance = (height / 2) / Math.tan((verticalFOV / 2) * (Math.PI / 180));
+    this.initVerticalFOV = fov || Math.atan(height / (2 * aspectRatio * focalLength)) * 2 * (180 / Math.PI);
+    this.initCameraDistance = this.halfHeight / Math.tan((this.initVerticalFOV / 2) * (Math.PI / 180));
 
-    console.log('cameraDistance', cameraDistance);
-    this.camera.position.set(0, 0, cameraDistance);
+    this.camera = new PerspectiveCamera(this.initVerticalFOV, aspectRatio, near, far);
+    this.initCamera();
 
     // renderer
     this.renderer = new WebGLRenderer({ alpha: true });
@@ -42,13 +51,26 @@ export class ThreeContext {
     this.cameraControl = new CameraControlFps(this);
     this.cameraControl.attach();
 
-    console.log('new context');
+    console.log('new context created');
 
   }
 
+  initCamera() {
+    console.log('initCamera');
+    this.camera.fov = this.initVerticalFOV;
+    this.camera.position.set(this.toDomX(this.halfWidth), this.toDomY(this.halfHeight), this.initCameraDistance);
+  }
+
+  toDomX(val:number) {
+    return val;
+  }
+  toDomY(val:number) {
+    return val * -1;
+  }
+  
   addBaseAxis(size:number = 1000) {
-    this.addLine([ new Vector3(0, 0, 0), new Vector3(size, 0, 0) ], 'red');
-    this.addLine([ new Vector3(0, 0, 0), new Vector3(0, size, 0) ], 'green');
+    this.addLine([ new Vector3(0, 0, 0), new Vector3(this.toDomX(size), 0, 0) ], 'red');
+    this.addLine([ new Vector3(0, 0, 0), new Vector3(0, this.toDomY(size), 0) ], 'green');
     this.addLine([ new Vector3(0, 0, 0), new Vector3(0, 0, size) ], 'blue');
   }
 
@@ -57,6 +79,7 @@ export class ThreeContext {
     const lineMaterial = new LineBasicMaterial({ color });
     const line = new Line(lineGeometry, lineMaterial);
     this.scene.add(line);
+    this.objectList.push(line);
   }
 
   addPlainImage(url:string, size:number) {
@@ -68,6 +91,7 @@ export class ThreeContext {
         const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
         const plain = new Mesh(geometry, material);
         this.scene.add(plain);
+        this.objectList.push(plain);
         this.render();
         resolve();
       });
@@ -78,7 +102,41 @@ export class ThreeContext {
     const geometry = new PlaneGeometry(width, height);
     const material = new MeshBasicMaterial({ color: 'green', side: DoubleSide });
     const plain = new Mesh(geometry, material);
+    this.objectList.push(plain);
     this.scene.add(plain);
+  }
+  
+  addPlainPolygon(position:[number, number][], color:ColorRepresentation) {
+
+    // Create a shape
+    const shape = new Shape();
+    shape.moveTo(this.toDomX(position[0][0]), this.toDomY(position[0][1])); // Move to the starting point of the shape
+    position.forEach((pos, idx) => {
+      if (idx !== 0) {
+        shape.lineTo(this.toDomX(pos[0]), this.toDomY(pos[1])); // Draw a line to the next point
+      }
+    });
+    // shape.lineTo(this.toDomX(position[0][0]), this.toDomY(position[0][1])); // start line back
+
+    // Create geometry from the shape
+    const geometry = new ShapeGeometry(shape);
+    
+    // Create a material
+    const material = new MeshBasicMaterial({ color, side: DoubleSide, transparent: true, opacity: 0.2 });
+
+    // Create a mesh with the geometry and material
+    const polygon = new Mesh(geometry, material);
+
+    // Add the mesh to the scene
+    this.objectList.push(polygon);
+    this.scene.add(polygon);
+
+    // line
+    // const lineMaterial = new LineBasicMaterial({ color });
+    // const line = new Line(geometry, lineMaterial);
+    // this.scene.add(line);
+    // this.objectList.push(line);
+    
   }
   
   addCube(width:number = 1, height:number = 1, depth:number = 1) {
@@ -102,12 +160,28 @@ export class ThreeContext {
 
     this.scene.add(cube);
     this.scene.add(line);
+    this.objectList.push(cube);
+    this.objectList.push(line);
 
     return cube;
   }
 
   render() {
     this.renderer.render(this.scene, this.camera);
+  }
+
+  clearObjectAll() {
+    
+    this.objectList.forEach((obj) => {
+      const target = obj as Mesh | Line;
+      target.geometry.dispose();
+      const mat = Array.isArray(target.material) ? target.material : [ target.material ];
+      mat.forEach((m) => m.dispose());
+      this.scene.remove(obj);
+    });
+
+    this.objectList.length = 0;
+    
   }
 
 }

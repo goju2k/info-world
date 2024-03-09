@@ -33,8 +33,10 @@ export function Canvas3d<T>({ parentElement, renderer, payload }:Canvas3dProps<T
       if (threeContextRef.current) {
         const { domElement } = threeContextRef.current.renderer;
         parentElement.childNodes.forEach((node) => node === domElement && parentElement.removeChild(domElement));
+        threeContextRef.current.clearObjectAll();
+        threeContextRef.current.scene.clear();
         threeContextRef.current.renderer.dispose();
-        console.log('disposed');
+        console.log('three-context disposed');
       }
     };
   }, []);
@@ -63,7 +65,10 @@ export function Canvas3d<T>({ parentElement, renderer, payload }:Canvas3dProps<T
   }, [ parentElement ]);
 
   // render
-  threeContext && renderer({ context: threeContext, payload });
+  if (threeContext) {
+    threeContext.clearObjectAll();
+    renderer({ context: threeContext, payload });
+  }
 
   return (
     <></>
