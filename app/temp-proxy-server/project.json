@@ -1,0 +1,24 @@
+{
+  "name": "temp-proxy-server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "app/temp-proxy-server/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "temp-proxy-server:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "temp-proxy-server:build:development"
+        },
+        "production": {
+          "buildTarget": "temp-proxy-server:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
