@@ -19,6 +19,9 @@ export interface Property {
   유형: string;
   nmvl: string;
   cat: string;
+  floors: number;
+  heightMeterPerFloor: number;
+  buildingHeightMeter: number;
 }
 
 export interface AreaGeoJSON {
@@ -55,6 +58,9 @@ export function useGetAreaApi() {
         
         const coord = [ item.geometry.coordinates[0][0].map((pos:number[]) => new Position(pos[1], pos[0])) ];
         const { property } = item;
+        property.floors = Math.floor(Math.random() * (Math.random() < 0.1 ? 20 : 8) + 2);
+        property.heightMeterPerFloor = Math.random() > 0.5 ? 3 : 3.5; // 최대 4미터
+        property.buildingHeightMeter = property.floors * property.heightMeterPerFloor;
 
         return {
           property,

@@ -1,4 +1,4 @@
-import { BoxGeometry, BufferGeometry, ColorRepresentation, DoubleSide, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, PlaneGeometry, SRGBColorSpace, Scene, Shape, ShapeGeometry, TextureLoader, Vector3, WebGLRenderer } from 'three';
+import { BoxGeometry, BufferGeometry, ColorRepresentation, DoubleSide, EdgesGeometry, ExtrudeGeometry, Line, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, PlaneGeometry, SRGBColorSpace, Scene, Shape, TextureLoader, Vector3, WebGLRenderer } from 'three';
 
 import { CameraControlFps } from './camera/camera-control-fps';
 
@@ -106,7 +106,7 @@ export class ThreeContext {
     this.scene.add(plain);
   }
   
-  addPlainPolygon(position:[number, number][], color:ColorRepresentation) {
+  addPolygonalBox(position:[number, number][], height:number = 1, color:ColorRepresentation = 'gray') {
 
     // Create a shape
     const shape = new Shape();
@@ -121,10 +121,14 @@ export class ThreeContext {
     // shape.lineTo(this.toDomX(position[0][0]), this.toDomY(position[0][1])); // start line back
 
     // Create geometry from the shape
-    const geometry = new ShapeGeometry(shape);
+    // const geometry = new ShapeGeometry(shape);
+    const geometry = new ExtrudeGeometry(shape, {
+      depth: height,
+      bevelEnabled: false,
+    });
     
     // Create a material
-    const material = new MeshBasicMaterial({ color, side: DoubleSide, transparent: true, opacity: 0.2 });
+    const material = new MeshBasicMaterial({ color, side: DoubleSide, transparent: true, opacity: 0.12 });
 
     // Create a mesh with the geometry and material
     const polygon = new Mesh(geometry, material);
@@ -133,12 +137,12 @@ export class ThreeContext {
     this.objectList.push(polygon);
     this.scene.add(polygon);
 
-    // line
-    this.addLine(vectors, 'red');
-    // const lineMaterial = new LineBasicMaterial({ color });
-    // const line = new Line(geometry, lineMaterial);
-    // this.scene.add(line);
-    // this.objectList.push(line);
+    // Create line segments for each edge
+    const lineMaterial = new LineBasicMaterial({ color });
+    const edges = new EdgesGeometry(geometry); 
+    const line = new LineSegments(edges, lineMaterial); 
+    this.objectList.push(line);
+    this.scene.add(line);
     
   }
   

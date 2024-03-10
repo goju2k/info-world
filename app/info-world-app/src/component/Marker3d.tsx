@@ -1,4 +1,4 @@
-import { MapMarkerWrapper, useMintMapController } from '@mint-ui/map';
+import { GeoCalulator, MapMarkerWrapper, useMintMapController } from '@mint-ui/map';
 import { Canvas3d, Canvas3dRenderer, ThreeContext } from 'draw-3d-property-lib';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -54,13 +54,18 @@ export function Marker3d({ data, control3d }:Marker3dProps) {
 
     contextRef.current = context;
 
+    const bounds = controller.getCurrBounds();
+    const meterOfLat = GeoCalulator.convertLatitudeToMeterValue(Math.abs(bounds.ne.lat - bounds.se.lat));
+    const ratio = controller.mapDivElement.offsetHeight / meterOfLat;
+    
     payload.forEach((geo) => {
       const posList = geo.coord[0].map((position) => {
         const offset = controller.positionToOffset(position);
 
         return [ offset.x, offset.y ];
       }) as [number, number][];
-      context.addPlainPolygon(posList, 'red');
+
+      context.addPolygonalBox(posList, Math.floor(geo.property.buildingHeightMeter * ratio));
     });
 
     console.log(`add polygon in ${Date.now() - time} ms`);
