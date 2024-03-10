@@ -1,5 +1,5 @@
 import { MapType, MintMap, Position } from '@mint-ui/map';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 
 import { MapControl, MapKeys } from '../component/map-control/MapControl.js';
@@ -7,7 +7,7 @@ import { Marker } from '../component/Marker';
 import { Marker2d } from '../component/Marker2d';
 import { Marker3d } from '../component/Marker3d';
 import { Switch } from '../component/semantic/Switch.js';
-import { useGetAreaApi } from '../hook/get-area-api-hook.js';
+import { AreaGeoJSON, useGetAreaApi } from '../hook/get-area-api-hook.js';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -24,10 +24,14 @@ const StyledApp = styled.div`
   height: 100vh;
 `;
 
+function sliceData(data:AreaGeoJSON[], renderPercent:number) {
+  return data.slice(0, Math.floor(data.length * (renderPercent / 100)));
+}
+
 export function App() {
 
   // area data
-  const data = useGetAreaApi();
+  const orgData = useGetAreaApi();
 
   // control config: render ratio
   const [ mapType, setMapType ] = useState<MapType>('naver');
@@ -40,6 +44,12 @@ export function App() {
 
   // control config: control 3d
   const [ control3d, setControl3d ] = useState(false);
+
+  // render data
+  const [ data, setData ] = useState<AreaGeoJSON[]>();
+  useEffect(() => {
+    setData(sliceData(orgData, renderRatio));
+  }, [ orgData, renderRatio ]);
 
   return (
     <>
@@ -66,14 +76,14 @@ export function App() {
             setMode={setMode}
             control3d={control3d}
             setControl3d={setControl3d}
-            dataLength={data.length}
+            dataLength={orgData.length}
           />
           
           {data && (
             <Switch condition={[
-              { if: mode === 1, then: <Marker data={data} renderPercent={renderRatio} /> },
-              { if: mode === 2, then: <Marker2d data={data} renderPercent={renderRatio} /> },
-              { if: mode === 3, then: <Marker3d data={data} renderPercent={renderRatio} control3d={control3d} /> },
+              { if: mode === 1, then: <Marker data={data} /> },
+              { if: mode === 2, then: <Marker2d data={data} /> },
+              { if: mode === 3, then: <Marker3d data={data} control3d={control3d} /> },
             ]}
             />
           )}

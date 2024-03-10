@@ -110,11 +110,13 @@ export class ThreeContext {
 
     // Create a shape
     const shape = new Shape();
+    const vectors:Vector3[] = [];
     shape.moveTo(this.toDomX(position[0][0]), this.toDomY(position[0][1])); // Move to the starting point of the shape
     position.forEach((pos, idx) => {
       if (idx !== 0) {
         shape.lineTo(this.toDomX(pos[0]), this.toDomY(pos[1])); // Draw a line to the next point
       }
+      vectors.push(new Vector3(this.toDomX(pos[0]), this.toDomY(pos[1])));
     });
     // shape.lineTo(this.toDomX(position[0][0]), this.toDomY(position[0][1])); // start line back
 
@@ -132,6 +134,7 @@ export class ThreeContext {
     this.scene.add(polygon);
 
     // line
+    this.addLine(vectors, 'red');
     // const lineMaterial = new LineBasicMaterial({ color });
     // const line = new Line(geometry, lineMaterial);
     // this.scene.add(line);

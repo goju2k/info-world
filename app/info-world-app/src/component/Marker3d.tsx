@@ -1,34 +1,42 @@
 import { MapMarkerWrapper, useMintMapController } from '@mint-ui/map';
 import { Canvas3d, Canvas3dRenderer, ThreeContext } from 'draw-3d-property-lib';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkerProps } from './marker-types';
 
-const StyledCanvas = styled.div<{clickable?:boolean;}>`
+const StyledCanvas = styled.div<{clickable?:boolean; visible?:boolean;}>`
   pointer-events: ${({ clickable }) => (clickable ? 'auto' : 'none')};
+  visibility: ${({ visible }) => (visible ? '' : 'hidden')};
 `;
 
 export interface Marker3dProps extends MarkerProps {
   control3d?:boolean;
 }
 
-export function Marker3d({ data, renderPercent, control3d }:Marker3dProps) {
+export function Marker3d({ data, control3d }:Marker3dProps) {
 
   const controller = useMintMapController();
 
   const [ pos, setPos ] = useState(controller.getCurrBounds().nw);
-
+  const [ visible, setVisible ] = useState(true);
   useEffect(() => {
 
     const handleIdle = () => {
       setPos(controller.getCurrBounds().nw);
+      setVisible(true);
+    };
+
+    const zoomstart = () => {
+      setVisible(false);
     };
 
     controller.addEventListener('IDLE', handleIdle);
-
+    controller.addEventListener('ZOOMSTART', zoomstart);
+    
     return () => {
       controller.removeEventListener('IDLE', handleIdle);
+      controller.removeEventListener('ZOOMSTART', zoomstart);
     };
 
   }, []);
@@ -37,10 +45,12 @@ export function Marker3d({ data, renderPercent, control3d }:Marker3dProps) {
   const [ hasContainer, setHasContainer ] = useState(false);
 
   const contextRef = useRef<ThreeContext|null>(null);
-  const renderer:Canvas3dRenderer<typeof data> = async ({
+  const renderer:Canvas3dRenderer<typeof data> = useCallback(async ({
     context,
     payload,
   }) => {
+
+    const time = Date.now();
 
     contextRef.current = context;
 
@@ -53,18 +63,21 @@ export function Marker3d({ data, renderPercent, control3d }:Marker3dProps) {
       context.addPlainPolygon(posList, 'red');
     });
 
+    console.log(`add polygon in ${Date.now() - time} ms`);
+
     // add base axis draw
     context.addBaseAxis();
 
     // render
     context.render();
     
-  };
+  }, []);
 
   return (
     <MapMarkerWrapper position={pos}>
       <StyledCanvas
         clickable={control3d}
+        visible={visible}
         style={{
           width: controller.mapDivElement.offsetWidth,
           height: controller.mapDivElement.offsetHeight,
@@ -79,8 +92,8 @@ export function Marker3d({ data, renderPercent, control3d }:Marker3dProps) {
         && container.current 
         && (
           <>
-            {control3d && <Canvas3d parentElement={container.current} payload={data.slice(0, Math.floor(data.length * (renderPercent / 100)))} renderer={renderer} />}
-            {!control3d && <Canvas3d parentElement={container.current} payload={data.slice(0, Math.floor(data.length * (renderPercent / 100)))} renderer={renderer} />}
+            {control3d && <Canvas3d parentElement={container.current} payload={data} renderer={renderer} />}
+            {!control3d && <Canvas3d parentElement={container.current} payload={data} renderer={renderer} />}
           </>
         )
         

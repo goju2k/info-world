@@ -68,25 +68,6 @@ export function MapControl({
         </ConfigBox>
 
         <ConfigBox>
-          <LabelLine>렌더링비율</LabelLine>
-          <input
-            type='range'
-            min='1'
-            max='100'
-            style={{ width: '70%' }}
-            value={renderRatio}
-            onChange={(e) => {
-              setRenderRatio(Number(e.target.value));
-            }}
-          /><span>{` ${renderRatio}%`}</span>
-        </ConfigBox>
-
-        <ConfigBox>
-          <LabelLine>렌더링된 마커 수</LabelLine>
-          <div>{`${Math.floor(dataLength * (renderRatio / 100))} / ${dataLength} 개`}</div>
-        </ConfigBox>
-
-        <ConfigBox>
           <Label>마커 종류</Label>
           <select
             onChange={(e) => {
@@ -116,6 +97,25 @@ export function MapControl({
           </ConfigBox>
         )}
   
+        <ConfigBox>
+          <LabelLine>렌더링비율</LabelLine>
+          <input
+            type='range'
+            min='1'
+            max='100'
+            style={{ width: '70%' }}
+            value={renderRatio}
+            onChange={(e) => {
+              setRenderRatio(Number(e.target.value));
+            }}
+          /><span>{` ${renderRatio}%`}</span>
+        </ConfigBox>
+
+        <ConfigBox>
+          <LabelLine>렌더링된 마커 수</LabelLine>
+          <div>{`${Math.floor(dataLength * (renderRatio / 100))} / ${dataLength} 개`}</div>
+        </ConfigBox>
+
       </MapControlContainer>
 
     </MapControlWrapper>

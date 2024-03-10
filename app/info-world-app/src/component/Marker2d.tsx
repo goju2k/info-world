@@ -2,7 +2,7 @@ import { CanvasMarker, useMintMapController } from '@mint-ui/map';
 
 import { MarkerProps } from './marker-types';
 
-export function Marker2d({ data, renderPercent }:MarkerProps) {
+export function Marker2d({ data }:MarkerProps) {
   
   const controller = useMintMapController();
 
@@ -32,7 +32,7 @@ export function Marker2d({ data, renderPercent }:MarkerProps) {
         context.closePath();
 
       }}
-      data={data.slice(0, Math.floor(data.length * (renderPercent / 100)))}
+      data={data}
     />
   );
 }
