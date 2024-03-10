@@ -1,5 +1,6 @@
 import { GeoCalulator, MapMarkerWrapper, useMintMapController } from '@mint-ui/map';
 import { Canvas3d, Canvas3dRenderer, ThreeContext } from 'draw-3d-property-lib';
+import { toPng } from 'html-to-image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -44,21 +45,37 @@ export function Marker3d({ data, control3d }:Marker3dProps) {
   const container = useRef<HTMLDivElement|null>(null);
   const [ hasContainer, setHasContainer ] = useState(false);
 
+  const [ mapImage, setMapImage ] = useState<string|null>(null);
+  useEffect(() => {
+    if (control3d) {
+      toPng(controller.mapDivElement).then((data) => {
+        setMapImage(data);
+      });  
+    } else {
+      setMapImage(null);
+    }
+    
+  }, [ control3d ]);
+
   const contextRef = useRef<ThreeContext|null>(null);
-  const renderer:Canvas3dRenderer<typeof data> = useCallback(async ({
+  const renderer:Canvas3dRenderer<{data:typeof data; map?:string;}> = useCallback(async ({
     context,
     payload,
   }) => {
 
     const time = Date.now();
+    const { data, map } = payload;
 
     contextRef.current = context;
+
+    // add map image
+    map && context.addPlainImage(map, true);
 
     const bounds = controller.getCurrBounds();
     const meterOfLat = GeoCalulator.convertLatitudeToMeterValue(Math.abs(bounds.ne.lat - bounds.se.lat));
     const ratio = controller.mapDivElement.offsetHeight / meterOfLat;
     
-    payload.forEach((geo) => {
+    data.forEach((geo) => {
       const posList = geo.coord[0].map((position) => {
         const offset = controller.positionToOffset(position);
 
@@ -71,7 +88,7 @@ export function Marker3d({ data, control3d }:Marker3dProps) {
     console.log(`add polygon in ${Date.now() - time} ms`);
 
     // add base axis draw
-    context.addBaseAxis();
+    // context.addBaseAxis();
 
     // render
     context.render();
@@ -97,8 +114,8 @@ export function Marker3d({ data, control3d }:Marker3dProps) {
         && container.current 
         && (
           <>
-            {control3d && <Canvas3d parentElement={container.current} payload={data} renderer={renderer} />}
-            {!control3d && <Canvas3d parentElement={container.current} payload={data} renderer={renderer} />}
+            {control3d && mapImage && <Canvas3d parentElement={container.current} payload={{ data, map: mapImage }} renderer={renderer} />}
+            {!control3d && <Canvas3d parentElement={container.current} payload={{ data }} renderer={renderer} />}
           </>
         )
         

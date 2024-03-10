@@ -82,26 +82,43 @@ export class ThreeContext {
     this.objectList.push(line);
   }
 
-  addPlainImage(url:string, size:number) {
+  addPlainImage(url:string, border:boolean = false) {
     return new Promise<void>((resolve) => {
       const textureLoader = new TextureLoader();
       textureLoader.load(url, (texture) => {
         texture.colorSpace = SRGBColorSpace;
-        const geometry = new PlaneGeometry(size, size * (texture.image.height / texture.image.width));
+        const geometry = new PlaneGeometry(texture.image.width, texture.image.height);
         const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
         const plain = new Mesh(geometry, material);
+        plain.position.x = this.toDomX(texture.image.width / 2);
+        plain.position.y = this.toDomY(texture.image.height / 2);
+        plain.position.z = -1;
         this.scene.add(plain);
         this.objectList.push(plain);
+
+        if (border) {
+          // Create line segments for each edge
+          const lineMaterial = new LineBasicMaterial({ color: 'gray', linewidth: 3 });
+          const edges = new EdgesGeometry(geometry); 
+          const line = new LineSegments(edges, lineMaterial); 
+          line.position.x = plain.position.x;
+          line.position.y = plain.position.y;
+          this.objectList.push(line);
+          this.scene.add(line);
+        }
+
         this.render();
         resolve();
       });
     });
   }
 
-  addPlain(width:number = 100, height:number = 100) {
+  addPlain(width:number = 100, height:number = 100, color:ColorRepresentation = 'gray') {
     const geometry = new PlaneGeometry(width, height);
-    const material = new MeshBasicMaterial({ color: 'green', side: DoubleSide });
+    const material = new MeshBasicMaterial({ color, side: DoubleSide });
     const plain = new Mesh(geometry, material);
+    plain.position.x = this.toDomX(width / 2);
+    plain.position.y = this.toDomY(height / 2);
     this.objectList.push(plain);
     this.scene.add(plain);
   }

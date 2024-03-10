@@ -84,6 +84,9 @@ export function MapControl({
             <select
               onChange={(e) => {
                 setMode(Number(e.target.value) as 1|2|3);
+                if (e.target.value !== '3') {
+                  setControl3d(false);
+                }
               }}
               value={mode}
               style={{ marginLeft: '10px' }}
