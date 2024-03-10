@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "nx serve info-world-app",
+    "build": "nx build info-world-app",
     "server": "nx serve temp-proxy-server"
   },
   "author": "",

@@ -52,21 +52,13 @@ export function Marker3d({ data, renderPercent, control3d }:Marker3dProps) {
       }) as [number, number][];
       context.addPlainPolygon(posList, 'red');
     });
-    context.render();
 
-    // add cube test
+    // add base axis draw
     context.addBaseAxis();
-    // await context.addPlainImage(mapImage, 627);
-    // context.addPlain(100, 100);
-    // context.addCube();
-    
-    // function animate() {
-    //   requestAnimationFrame(animate);
-    //   context.render();
-    // }
-    
-    // animate();
 
+    // render
+    context.render();
+    
   };
 
   return (

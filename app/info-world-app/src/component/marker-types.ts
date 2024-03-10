@@ -1,6 +1,6 @@
-import { GeoJSON } from '../app/app';
+import { AreaGeoJSON } from '../hook/get-area-api-hook';
 
 export interface MarkerProps {
-  data:GeoJSON[];
+  data:AreaGeoJSON[];
   renderPercent:number;
 }
