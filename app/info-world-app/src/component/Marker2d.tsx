@@ -2,6 +2,8 @@ import { CanvasMarker, useMintMapController } from '@mint-ui/map';
 
 import { MarkerProps } from './marker-types';
 
+import { getPropTypeColor } from '../util/prop-type';
+
 export function Marker2d({ data }:MarkerProps) {
   
   const controller = useMintMapController();
@@ -20,12 +22,14 @@ export function Marker2d({ data }:MarkerProps) {
             context.lineTo(off.x, off.y);
           }
         });
+
+        const color = getPropTypeColor(payload?.property.유형 || '07');
         context.lineTo(start.x, start.y);
-        context.fillStyle = 'orange';
+        context.fillStyle = color;
         context.globalAlpha = 0.3;
         context.fill();
 
-        context.strokeStyle = 'orange';
+        context.strokeStyle = color;
         context.globalAlpha = 1;
         context.stroke();
 

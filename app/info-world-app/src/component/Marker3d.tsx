@@ -6,6 +6,8 @@ import styled from 'styled-components';
 
 import { MarkerProps } from './marker-types';
 
+import { getPropTypeColor } from '../util/prop-type';
+
 const StyledCanvas = styled.div<{clickable?:boolean; visible?:boolean;}>`
   pointer-events: ${({ clickable }) => (clickable ? 'auto' : 'none')};
   visibility: ${({ visible }) => (visible ? '' : 'hidden')};
@@ -82,7 +84,11 @@ export function Marker3d({ data, control3d }:Marker3dProps) {
         return [ offset.x, offset.y ];
       }) as [number, number][];
 
-      context.addPolygonalBox(posList, Math.floor(geo.property.buildingHeightMeter * ratio));
+      context.addPolygonalBox(
+        posList, 
+        Math.floor(geo.property.buildingHeightMeter * ratio), 
+        getPropTypeColor(geo.property.유형),
+      );
     });
 
     console.log(`add polygon in ${Date.now() - time} ms`);

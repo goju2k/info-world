@@ -5,6 +5,16 @@ import { useEffect, useState } from 'react';
 // @ts-ignore
 import { data as testdata } from '../assets/sample.js';
 
+const MaxFloorByType = {
+  '01': 18,
+  '02': 15,
+  '03': 5,
+  '04': 5,
+  '05': 4,
+  '06': 6,
+  '07': 3,
+} as Record<string, number>;
+
 export interface Property {
   bsn: string;
   추정가격: number;
@@ -58,8 +68,9 @@ export function useGetAreaApi() {
         
         const coord = [ item.geometry.coordinates[0][0].map((pos:number[]) => new Position(pos[1], pos[0])) ];
         const { property } = item;
-        property.floors = Math.floor(Math.random() * (Math.random() < 0.1 ? 20 : 8) + 2);
-        property.heightMeterPerFloor = Math.random() > 0.5 ? 3 : 3.5; // 최대 4미터
+
+        property.floors = Math.floor(Math.random() * MaxFloorByType[property.유형]);
+        property.heightMeterPerFloor = 3; // 1층 = 3미터
         property.buildingHeightMeter = property.floors * property.heightMeterPerFloor;
 
         return {
